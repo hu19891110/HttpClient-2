@@ -2,15 +2,15 @@
 /**
  * HttpClient 基于Curl实现
  * @author @SmartMeng http://weibo.com/mengsmart
- * @version 0.1
- * @time 2013.08.28
+ * @version 0.2
+ * @time 2014.04.06
  */
 class HttpClient{
 	// Request vars
 	var $url;
-	var $host;
-	var $port="80";
-	var $path;
+	// var $host;
+	// var $port="80";
+	// var $path;
 	var $method;
 	var $postdata = '';
 	var $cookies = array();
@@ -18,7 +18,7 @@ class HttpClient{
 	//var $accept = 'text/xml,application/xml,application/xhtml+xml,text/html,text/plain,image/png,image/jpeg,image/gif,*/*';
 	//var $accept_encoding = 'gzip';
 	//var $accept_language = 'en-us';
-	var $user_agent = 'HttpClient v0.1';
+	var $user_agent = 'HttpClient by SmartMeng v0.2';
 	
 	// Options
 	var $timeout = 20;
@@ -50,51 +50,48 @@ class HttpClient{
 		$this->url = $url;
     }
     
-    function get($url = "", $data = false) {
+    public function get($url = "") {
 		if ("" != $url) {
 			$this->url = $url;
 		}
         $this->method = 'GET';
-        if ($data) {
-            $this->path .= '?'.$this->buildQueryString($data);
-        }
         return $this->doRequest();
     }
     
-    function post($url, $data) {
-    	if ("" != $url) {
-			$this->url = $url;
-		}
-        $this->method = 'POST';
-        $this->postdata = $this->buildQueryString($data);
-    	return $this->doRequest();
+    public function post($url, $data) {
+	    	if ("" != $url) {
+				$this->url = $url;
+			}
+	        $this->method = 'POST';
+	        $this->postdata = $this->buildQueryString($data);
+	    	return $this->doRequest();
     }
     
-    function buildQueryString($data) {
-    	$querystring = '';
-    	if (is_array($data)) {
-    		// Change data in to postable data
-    		foreach ($data as $key => $val) {
-    			if (is_array($val)) {
-    				foreach ($val as $val2) {
-    					$querystring .= urlencode($key).'='.urlencode($val2).'&';
-    				}
-    			} else {
-    				$querystring .= urlencode($key).'='.urlencode($val).'&';
-    			}
-    		}
-    		$querystring = substr($querystring, 0, -1); // Eliminate unnecessary &
-    	} else {
-    		$querystring = $data;
-    	}
-    	return $querystring;
+    private function buildQueryString($data) {
+	    	$querystring = '';
+	    	if (is_array($data)) {
+	    		// Change data in to postable data
+	    		foreach ($data as $key => $val) {
+	    			if (is_array($val)) {
+	    				foreach ($val as $val2) {
+	    					$querystring .= urlencode($key).'='.urlencode($val2).'&';
+	    				}
+	    			} else {
+	    				$querystring .= urlencode($key).'='.urlencode($val).'&';
+	    			}
+	    		}
+	    		$querystring = substr($querystring, 0, -1); // Eliminate unnecessary &
+	    	} else {
+	    		$querystring = $data;
+	    	}
+	    	return $querystring;
     }
     
 	private function doRequest()
 	{
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $this->url);
-		curl_setopt($ch, CURLOPT_PORT, $this->port);
+		// curl_setopt($ch, CURLOPT_PORT, $this->port);
 		if($this->referer){
 			curl_setopt($ch,CURLOPT_REFERER,$this->referer);
 		}
@@ -204,12 +201,7 @@ class HttpClient{
 		return $this->cookies;
 	}
 	function getRequestURL() {
-		$url = 'http://'.$this->host;
-		if ($this->port != 80) {
-			$url .= ':'.$this->port;
-		}
-		$url .= $this->path;
-		return $url;
+		return $this->url;
 	}
 	// Setter methods
 	function setUserAgent($string) {
@@ -224,7 +216,7 @@ class HttpClient{
 		$this->cookies = $array;
 	}
 	// Option setting methods
-	function useGzip($boolean) {
+	function setUseGzip($boolean) {
 		$this->use_gzip = $boolean;
 	}
 	function setPersistCookies($boolean) {
@@ -247,7 +239,7 @@ class HttpClient{
 		$this->debug = $boolean;
 	}*/
 	// "Quick" static methods
-	function quickGet($url) {
+	public static function quickGet($url) {
 		$client = new HttpClient($url);
 		if (!$client->get()) {
 			return false;
@@ -256,7 +248,7 @@ class HttpClient{
 		}
 	}
 	
-	function quickPost($url, $data) {
+	public static function quickPost($url, $data) {
 		$client = new HttpClient($url);
 		if (!$client->post($url, $data)) {
 			return false;
